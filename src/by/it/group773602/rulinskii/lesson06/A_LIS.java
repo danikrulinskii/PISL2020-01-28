@@ -3,6 +3,7 @@ package by.it.group773602.rulinskii.lesson06;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /*
@@ -32,7 +33,6 @@ import java.util.Scanner;
 
 public class A_LIS {
 
-
     int getSeqSize(InputStream stream) throws FileNotFoundException {
         //подготовка к чтению данных
         Scanner scanner = new Scanner(stream);
@@ -46,49 +46,27 @@ public class A_LIS {
         }
         //тут реализуйте логику задачи методами динамического программирования (!!!)
         int result = 0;
-
-        int[] P = new int[n];
-        int[] M = new int[n+1];
-
-        int L = 0;
-
-        for (int i = 0; i < n; i++) {
-            int lo = 1;
-            int hi = L;
-            while (lo <= hi) {
-                int mid = ((lo + hi) / 2);
-                if (m[M[mid]] < m[i])
-                    lo = mid + 1;
-                else hi = mid - 1;
+        int[] sequence = new int[m.length];
+        for (int i = 0; i < sequence.length; i++) {
+            sequence[i] = 1;
+            for (int j = 0; j <= i - 1; j++) {
+                if (m[j] < m[i] && sequence[j] + 1 > sequence[i]) {
+                    sequence[i] = sequence[j] + 1;
+                }
             }
-            int newL = lo;
-            P[i] = M[newL - 1];
-            M[newL] = i;
-            if (newL > L)
-                L = newL;
         }
-        int[] S = new int[L];
-        int k = M[L];
-        for (int i = 0; i < L; i++) {
-            S[i] = m[k];
-            k = P[k];
+        for (int i = 0; i < sequence.length; i++) {
+            result = sequence[i] > result ? sequence[i] : result;
         }
-        for (int s : S) {
-            System.out.println(s);
-        }
-        result = L;
-
         //!!!!!!!!!!!!!!!!!!!!!!!!!     КОНЕЦ ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
         return result;
     }
 
-
     public static void main(String[] args) throws FileNotFoundException {
         String root = System.getProperty("user.dir") + "/src/";
-        InputStream stream = new FileInputStream(root + "by/it/a_khmelev/lesson06/dataA.txt");
+        InputStream stream = new FileInputStream(root + "by/it/group773602/rulinskii/lesson06/dataA.txt");
         A_LIS instance = new A_LIS();
         int result = instance.getSeqSize(stream);
         System.out.print(result);
     }
 }
-

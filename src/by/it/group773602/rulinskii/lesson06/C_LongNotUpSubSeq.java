@@ -3,8 +3,8 @@ package by.it.group773602.rulinskii.lesson06;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /*
 Задача на программирование: наибольшая невозростающая подпоследовательность
@@ -36,7 +36,6 @@ import java.util.Scanner;
     1 3 4 5
 */
 
-
 public class C_LongNotUpSubSeq {
 
     int getNotUpSeqSize(InputStream stream) throws FileNotFoundException {
@@ -52,74 +51,45 @@ public class C_LongNotUpSubSeq {
         }
         //тут реализуйте логику задачи методами динамического программирования (!!!)
         int result = 0;
-        int[] counts;
+        int[] sequence = new int[m.length];
+        for (int i = 0; i < sequence.length; i++) {
+            sequence[i] = 1;
+            for (int j = 0; j <= i - 1; j++) {
+                if (m[i] <= m[j] && sequence[j] + 1 > sequence[i]) {
+                    sequence[i] = sequence[j] + 1;
+                }
+            }
+        }
+        for (int i = 0; i < sequence.length; i++) {
+            result = sequence[i] > result ? sequence[i] : result;
+        }
 
-        counts = passageVariety(m, n);
-
-        int ind;
-        ind = getIndMaxSeq(counts);
-
-        result = counts[ind] + 1;
-
-        int[] indMas;
-        indMas = getMaxSeq(counts, m, counts[ind], ind);
-
-        Arrays.stream(indMas).forEach(e -> System.out.print(e + 1 + " "));
+        int index = Arrays.stream(sequence)
+                .boxed()
+                .collect(Collectors.toList())
+                .indexOf(result);
+        boolean stop = false;
+        List<Integer> indexes = new ArrayList<>();
+        for (int i = index; i > -1 && !stop; i--) {
+            if (i == index || sequence[i] < sequence[i + 1]) {
+                indexes.add(i + 1);
+            }
+            if (sequence[i] == 1) {
+                stop = true;
+            }
+        }
+        Collections.reverse(indexes);
+        indexes.forEach(idx -> System.out.print(idx + " "));
         System.out.println();
         //!!!!!!!!!!!!!!!!!!!!!!!!!     КОНЕЦ ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
         return result;
     }
 
-    private int[] passageVariety(int[] seq, int length){
-
-        int[] counts = new int[length];
-
-        Arrays.fill(counts, 0);
-
-        for(int i = 0; i < length - 1; i++){
-            for(int j = i + 1; j < length; j++){
-                if(seq[i] >= seq[j] && counts[j] < counts[i] + 1){
-                    counts[j]++;
-                }
-            }
-        }
-
-        return counts;
-    }
-
-    private int getIndMaxSeq(int[] counts){
-        int max = counts[0], ind = 0;
-        for (int i = 1; i < counts.length; i++){
-            if (max < counts[i]){
-                max = counts[i];
-                ind = i;
-            }
-        }
-        return ind;
-    }
-
-    private int[] getMaxSeq(int[] counts,int[] seq, int max, int maxInd){
-
-        int[] indMas = new int[counts[maxInd] + 1];
-        int curInd = maxInd;
-        int masLength = indMas.length - 1;
-        indMas[masLength] = maxInd;
-
-        for(int i = maxInd - 1; i >= 0; i--){
-            if (seq[i] >= seq[curInd] && counts[curInd] - counts[i] == 1){
-                curInd = i;
-                indMas[--masLength] = i;
-            }
-        }
-        return indMas;
-    }
-
     public static void main(String[] args) throws FileNotFoundException {
         String root = System.getProperty("user.dir") + "/src/";
-        InputStream stream = new FileInputStream(root + "by/it/a_khmelev/lesson06/dataC.txt");
+        InputStream stream = new FileInputStream(root + "by/it/group773602/rulinskii/lesson06/dataC.txt");
         C_LongNotUpSubSeq instance = new C_LongNotUpSubSeq();
         int result = instance.getNotUpSeqSize(stream);
         System.out.print(result);
     }
-
 }
